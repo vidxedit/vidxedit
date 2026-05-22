@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Subtitles – VidXEdit</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #1a6bff;
+      --blue-dark: #0047cc;
+      --blue-light: #e8f0ff;
+      --blue-mid: #c2d8ff;
+      --white: #ffffff;
+      --gray: #f4f6fb;
+      --text: #0d1a2e;
+      --muted: #6b7a99;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--gray);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 60px;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--blue-mid);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--blue);
+      letter-spacing: -1px;
+      text-decoration: none;
+    }
+
+    .logo span { color: var(--text); }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.92rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .back-btn:hover { color: var(--blue); }
+
+    /* HERO */
+    .page-hero {
+      background: var(--white);
+      padding: 60px 40px 50px;
+      text-align: center;
+      border-bottom: 1px solid var(--blue-mid);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .page-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 80% at 50% 0%, #ddeaff 0%, transparent 70%);
+    }
+
+    .tool-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--blue-light);
+      color: var(--blue);
+      font-size: 0.82rem;
+      font-weight: 500;
+      padding: 6px 16px;
+      border-radius: 50px;
+      margin-bottom: 20px;
+      border: 1px solid var(--blue-mid);
+      position: relative;
+    }
+
+    .page-hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      margin-bottom: 12px;
+      position: relative;
+    }
+
+    .page-hero p {
+      color: var(--muted);
+      font-size: 1rem;
+      position: relative;
+    }
+
+    /* TYPING ANIMATION */
+    .subtitle-preview {
+      position: relative;
+      margin-top: 24px;
+      display: inline-block;
+      background: rgba(26,107,255,0.08);
+      border: 1.5px solid var(--blue-mid);
+      border-radius: 12px;
+      padding: 12px 24px;
+      font-size: 0.95rem;
+      color: var(--text);
+      font-weight: 500;
+      min-width: 280px;
+    }
+
+    .subtitle-preview .lang {
+      font-size: 0.75rem;
+      color: var(--blue);
+      font-weight: 600;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .typing-text::after {
+      content: '|';
+      animation: blink 0.8s infinite;
+      color: var(--blue);
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* LANGUAGES */
+    .lang-scroll {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+      position: relative;
+    }
+
+    .lang-tag {
+      background: var(--white);
+      border: 1.5px solid var(--blue-mid);
+      color: var(--text);
+      font-size: 0.8rem;
+      font-weight: 500;
+      padding: 5px 14px;
+      border-radius: 50px;
+    }
+
+    /* MAIN CARD */
+    .main-card {
+      max-width: 720px;
+      margin: 50px auto;
+      background: var(--white);
+      border-radius: 28px;
+      padding: 44px;
+      box-shadow: 0 8px 40px rgba(26,107,255,0.08);
+      border: 1.5px solid var(--blue-mid);
+      animation: fadeUp 0.5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* STEPS INDICATOR */
+    .steps-indicator {
+      display: flex;
+      align-items: center;
+      margin-bottom: 36px;
+    }
+
+    .step-dot {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.82rem;
+      font-weight: 700;
+      font-family: 'Syne', sans-serif;
+      flex-shrink: 0;
+      transition: all 0.3s;
+    }
+
+    .step-dot.active { background: var(--blue); color: white; }
+    .step-dot.done { background: #00c471; color: white; }
+    .step-dot.inactive { background: var(--blue-light); color: var(--muted); border: 1.5px solid var(--blue-mid); }
+
+    .step-line {
+      flex: 1;
+      height: 2px;
+      background: var(--blue-mid);
+      margin: 0 8px;
+      transition: background 0.3s;
+    }
+
+    .step-line.done { background: #00c471; }
+
+    .step-label {
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 6px;
+    }
+
+    .steps-wrapper {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      margin-bottom: 36px;
+    }
+
+    .steps-row {
+      display: flex;
+      align-items: center;
+    }
+
+    .steps-labels {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 4px;
+    }
+
+    .steps-labels span {
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-align: center;
+      flex: 1;
+    }
+
+    /* UPLOAD */
+    .upload-area {
+      border: 2px dashed var(--blue-mid);
+      border-radius: 18px;
+      padding: 44px 36px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      background: var(--gray);
+    }
+
+    .upload-area:hover, .upload-area.dragover {
+      border-color: var(--blue);
+      background: var(--blue-light);
+    }
+
+    .upload-area input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%; height: 100%;
+    }
+
+    .upload-icon { font-size: 2.5rem; margin-bottom: 14px; }
+
+    .upload-area h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .upload-area p { color: var(--muted); font-size: 0.85rem; }
+    .browse { color: var(--blue); font-weight: 500; }
+
+    /* FILE INFO */
+    .file-info {
+      display: none;
+      align-items: center;
+      gap: 16px;
+      background: var(--blue-light);
+      border: 1.5px solid var(--blue-mid);
+      border-radius: 14px;
+      padding: 16px 20px;
+      margin-top: 16px;
+    }
+
+    .file-info.show { display: flex; animation: fadeUp 0.3s ease; }
+
+    .file-icon {
+      width: 44px; height: 44px;
+      background: var(--blue);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+
+    .file-details { flex: 1; }
+
+    .file-name {
+      font-weight: 500;
+      font-size: 0.92rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 300px;
+    }
+
+    .file-size { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+
+    .remove-file {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 1.2rem;
+      transition: color 0.2s;
+    }
+
+    .remove-file:hover { color: #ff4444; }
+
+    /* LANGUAGE SELECT */
+    .lang-section { margin-top: 28px; }
+
+    .section-label {
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .lang-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .lang-select {
+      width: 100%;
+      padding: 13px 16px;
+      border: 1.5px solid var(--blue-mid);
+      border-radius: 12px;
+      font-size: 0.92rem;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      background: var(--gray);
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236b7a99' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+    }
+
+    .lang-select:focus { border-color: var(--blue); background-color: var(--white); }
+
+    .lang-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      color: var(--blue);
+    }
+
+    /* OPTIONS */
+    .options-section { margin-top: 24px; }
+
+    .option-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--blue-light);
+    }
+
+    .option-row:last-child { border-bottom: none; }
+
+    .option-info h5 {
+      font-weight: 500;
+      font-size: 0.92rem;
+      margin-bottom: 2px;
+    }
+
+    .option-info p { font-size: 0.78rem; color: var(--muted); }
+
+    .toggle {
+      width: 44px; height: 24px;
+      background: var(--blue-mid);
+      border-radius: 50px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .toggle.on { background: var(--blue); }
+
+    .toggle::after {
+      content: '';
+      position: absolute;
+      width: 18px; height: 18px;
+      background: white;
+      border-radius: 50%;
+      top: 3px; left: 3px;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+
+    .toggle.on::after { transform: translateX(20px); }
+
+    /* GENERATE BTN */
+    .generate-btn {
+      width: 100%;
+      background: var(--blue);
+      color: white;
+      border: none;
+      padding: 16px;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      margin-top: 28px;
+      transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(26,107,255,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .generate-btn:hover {
+      background: var(--blue-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(26,107,255,0.4);
+    }
+
+    .generate-btn:disabled {
+      background: var(--blue-mid);
+      transform: none;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    /* PROGRESS */
+    .progress-box {
+      display: none;
+      margin-top: 24px;
+    }
+
+    .progress-box.show { display: block; animation: fadeUp 0.3s ease; }
+
+    .progress-stages {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .stage {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: var(--gray);
+      border: 1.5px solid var(--blue-light);
+      font-size: 0.88rem;
+      color: var(--muted);
+      transition: all 0.3s;
+    }
+
+    .stage.active {
+      background: var(--blue-light);
+      border-color: var(--blue-mid);
+      color: var(--blue);
+    }
+
+    .stage.done {
+      background: #e6faf2;
+      border-color: #a3e9c8;
+      color: #007a45;
+    }
+
+    .stage-icon { font-size: 1.1rem; flex-shrink: 0; }
+
+    .stage-spinner {
+      width: 16px; height: 16px;
+      border: 2px solid var(--blue-mid);
+      border-top-color: var(--blue);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      flex-shrink: 0;
+      display: none;
+    }
+
+    .stage.active .stage-spinner { display: block; }
+    .stage.active .stage-icon { display: none; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* RESULT */
+    .result-box {
+      display: none;
+      margin-top: 24px;
+    }
+
+    .result-box.show { display: block; animation: fadeUp 0.4s ease; }
+
+    .result-header {
+      background: #e6faf2;
+      border: 1.5px solid #a3e9c8;
+      border-radius: 18px 18px 0 0;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .result-header h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #007a45;
+    }
+
+    .result-header p { font-size: 0.8rem; color: #007a45; margin-top: 2px; }
+
+    .subtitle-preview-box {
+      background: #0d1a2e;
+      border-radius: 0 0 18px 18px;
+      padding: 24px;
+      border: 1.5px solid #a3e9c8;
+      border-top: none;
+    }
+
+    .subtitle-line {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 14px;
+      align-items: flex-start;
+    }
+
+    .subtitle-time {
+      font-size: 0.75rem;
+      color: #5b9eff;
+      font-family: monospace;
+      white-space: nowrap;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+
+    .subtitle-text { font-size: 0.9rem; color: white; line-height: 1.5; }
+    .subtitle-translated { font-size: 0.82rem; color: #8ab4ff; margin-top: 3px; }
+
+    .download-options {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .dl-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 20px;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .dl-btn.primary {
+      background: var(--blue);
+      color: white;
+      box-shadow: 0 4px 14px rgba(26,107,255,0.3);
+    }
+
+    .dl-btn.primary:hover { background: var(--blue-dark); transform: translateY(-2px); }
+
+    .dl-btn.secondary {
+      background: var(--blue-light);
+      color: var(--blue);
+      border: 1.5px solid var(--blue-mid);
+    }
+
+    .dl-btn.secondary:hover { background: var(--blue-mid); transform: translateY(-2px); }
+
+    /* TIPS */
+    .tips {
+      max-width: 720px;
+      margin: 0 auto 60px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .tip {
+      background: var(--white);
+      border-radius: 18px;
+      padding: 20px;
+      border: 1.5px solid var(--blue-mid);
+      text-align: center;
+    }
+
+    .tip-icon { font-size: 1.6rem; margin-bottom: 10px; }
+
+    .tip h5 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .tip p { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+
+    /* ADS */
+    .ad-slot {
+      width: 100%;
+      background: var(--white);
+      border: 1.5px dashed var(--blue-mid);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 0.78rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .ad-slot-banner { height: 90px; }
+    .ad-slot-mid    { height: 120px; }
+
+    footer {
+      background: var(--text);
+      color: rgba(255,255,255,0.6);
+      text-align: center;
+      padding: 30px 60px;
+      font-size: 0.85rem;
+    }
+
+    footer a { color: rgba(255,255,255,0.5); text-decoration: none; margin: 0 10px; }
+    footer a:hover { color: white; }
+
+    @media (max-width: 768px) {
+      nav { padding: 16px 20px; }
+      .main-card { margin: 24px 16px; padding: 28px 20px; }
+      .lang-grid { grid-template-columns: 1fr; }
+      .lang-arrow { transform: rotate(90deg); }
+      .tips { grid-template-columns: 1fr; margin: 0 16px 40px; }
+      .page-hero { padding: 40px 24px 36px; }
+      .download-options { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="logo">VidX<span>Edit</span></a>
+    <a href="index.html" class="back-btn">← Back to Tools</a>
+  </nav>
+
+  <div class="page-hero">
+    <div class="tool-badge">🤖 AI Powered</div>
+    <h1>AI Subtitles</h1>
+    <p>Auto-generate and translate subtitles for any video</p>
+    <div class="subtitle-preview">
+      <div class="lang">🌍 Detected: English → Arabic</div>
+      <div class="typing-text" id="typingText">Welcome to VidXEdit...</div>
+    </div>
+    <div class="lang-scroll">
+      <span class="lang-tag">🇺🇸 English</span>
+      <span class="lang-tag">🇸🇦 Arabic</span>
+      <span class="lang-tag">🇫🇷 French</span>
+      <span class="lang-tag">🇪🇸 Spanish</span>
+      <span class="lang-tag">🇩🇪 German</span>
+      <span class="lang-tag">🇨🇳 Chinese</span>
+      <span class="lang-tag">+50 more</span>
+    </div>
+  </div>
+
+  <!-- AD SLOT TOP -->
+  <div class="ad-slot ad-slot-banner" style="max-width:720px; margin: 24px auto 0; padding: 0 16px;">
+    <!-- Google AdSense Banner -->
+    Advertisement
+  </div>
+
+  <div class="main-card">
+
+    <!-- STEPS -->
+    <div class="steps-wrapper">
+      <div class="steps-row">
+        <div class="step-dot active" id="dot1">1</div>
+        <div class="step-line" id="line1"></div>
+        <div class="step-dot inactive" id="dot2">2</div>
+        <div class="step-line" id="line2"></div>
+        <div class="step-dot inactive" id="dot3">3</div>
+      </div>
+      <div class="steps-labels">
+        <span>Upload</span>
+        <span>Configure</span>
+        <span>Download</span>
+      </div>
+    </div>
+
+    <!-- UPLOAD -->
+    <div class="upload-area" id="uploadArea">
+      <input type="file" accept="video/*,audio/*" id="fileInput" onchange="handleFile(this)"/>
+      <div class="upload-icon">🎬</div>
+      <h4>Drop your video or audio here</h4>
+      <p>or <span class="browse">browse to upload</span></p>
+      <p style="margin-top:8px;">MP4, MOV, AVI, MKV, MP3, WAV — up to 500MB</p>
+    </div>
+
+    <div class="file-info" id="fileInfo">
+      <div class="file-icon">🎬</div>
+      <div class="file-details">
+        <div class="file-name" id="fileName">video.mp4</div>
+        <div class="file-size" id="fileSize">0 MB</div>
+      </div>
+      <button class="remove-file" onclick="removeFile()">✕</button>
+    </div>
+
+    <!-- LANGUAGE -->
+    <div class="lang-section">
+      <span class="section-label">Language settings</span>
+      <div class="lang-grid">
+        <div>
+          <span class="section-label" style="font-size:0.78rem;">Video language</span>
+          <select class="lang-select" id="sourceLang">
+            <option value="auto">🔍 Auto detect</option>
+            <option value="en">🇺🇸 English</option>
+            <option value="ar">🇸🇦 Arabic</option>
+            <option value="fr">🇫🇷 French</option>
+            <option value="es">🇪🇸 Spanish</option>
+            <option value="de">🇩🇪 German</option>
+            <option value="zh">🇨🇳 Chinese</option>
+            <option value="ja">🇯🇵 Japanese</option>
+            <option value="pt">🇧🇷 Portuguese</option>
+            <option value="ru">🇷🇺 Russian</option>
+            <option value="it">🇮🇹 Italian</option>
+          </select>
+        </div>
+        <div>
+          <span class="section-label" style="font-size:0.78rem;">Translate to</span>
+          <select class="lang-select" id="targetLang">
+            <option value="none">— No translation —</option>
+            <option value="en">🇺🇸 English</option>
+            <option value="ar" selected>🇸🇦 Arabic</option>
+            <option value="fr">🇫🇷 French</option>
+            <option value="es">🇪🇸 Spanish</option>
+            <option value="de">🇩🇪 German</option>
+            <option value="zh">🇨🇳 Chinese</option>
+            <option value="ja">🇯🇵 Japanese</option>
+            <option value="pt">🇧🇷 Portuguese</option>
+            <option value="ru">🇷🇺 Russian</option>
+            <option value="it">🇮🇹 Italian</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPTIONS -->
+    <div class="options-section">
+      <span class="section-label">Options</span>
+      <div class="option-row">
+        <div class="option-info">
+          <h5>Burn subtitles into video</h5>
+          <p>Embed subtitles permanently into the video file</p>
+        </div>
+        <div class="toggle" id="toggle1" onclick="toggleOption(this)"></div>
+      </div>
+      <div class="option-row">
+        <div class="option-info">
+          <h5>Include timestamps</h5>
+          <p>Add timing info to subtitle file (SRT format)</p>
+        </div>
+        <div class="toggle on" id="toggle2" onclick="toggleOption(this)"></div>
+      </div>
+      <div class="option-row">
+        <div class="option-info">
+          <h5>Speaker detection</h5>
+          <p>Identify different speakers in the video</p>
+        </div>
+        <div class="toggle" id="toggle3" onclick="toggleOption(this)"></div>
+      </div>
+    </div>
+
+    <!-- GENERATE BTN -->
+    <button class="generate-btn" id="generateBtn" onclick="generateSubtitles()">
+      🌍 Generate Subtitles with AI
+    </button>
+
+    <!-- PROGRESS -->
+    <div class="progress-box" id="progressBox">
+      <div class="progress-stages">
+        <div class="stage" id="stage1">
+          <div class="stage-spinner"></div>
+          <div class="stage-icon">🔊</div>
+          <span>Extracting audio from video...</span>
+        </div>
+        <div class="stage" id="stage2">
+          <div class="stage-spinner"></div>
+          <div class="stage-icon">🎙️</div>
+          <span>Transcribing speech with AI...</span>
+        </div>
+        <div class="stage" id="stage3">
+          <div class="stage-spinner"></div>
+          <div class="stage-icon">🌍</div>
+          <span>Translating subtitles...</span>
+        </div>
+        <div class="stage" id="stage4">
+          <div class="stage-spinner"></div>
+          <div class="stage-icon">📄</div>
+          <span>Generating subtitle file...</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT -->
+    <div class="result-box" id="resultBox">
+      <div class="result-header">
+        <div>
+          <h4>✅ Subtitles generated!</h4>
+          <p>4 subtitle lines · English → Arabic</p>
+        </div>
+      </div>
+      <div class="subtitle-preview-box">
+        <div class="subtitle-line">
+          <span class="subtitle-time">00:00:02</span>
+          <div>
+            <div class="subtitle-text">Welcome to VidXEdit, your free video tools platform.</div>
+            <div class="subtitle-translated">مرحباً بك في VidXEdit، منصتك المجانية لأدوات الفيديو.</div>
+          </div>
+        </div>
+        <div class="subtitle-line">
+          <span class="subtitle-time">00:00:06</span>
+          <div>
+            <div class="subtitle-text">Download, extract audio, and add subtitles easily.</div>
+            <div class="subtitle-translated">حمّل، استخرج الصوت، وأضف الترجمة بسهولة.</div>
+          </div>
+        </div>
+        <div class="subtitle-line">
+          <span class="subtitle-time">00:00:10</span>
+          <div>
+            <div class="subtitle-text">All powered by artificial intelligence.</div>
+            <div class="subtitle-translated">كل ذلك مدعوم بالذكاء الاصطناعي.</div>
+          </div>
+        </div>
+      </div>
+      <div class="download-options">
+        <button class="dl-btn primary" onclick="alert('Connect to backend to enable downloads.')">⬇ Download SRT</button>
+        <button class="dl-btn secondary" onclick="alert('Connect to backend to enable downloads.')">⬇ Download VTT</button>
+        <button class="dl-btn secondary" onclick="alert('Connect to backend to enable downloads.')">🎬 Download Video with Subtitles</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- AD SLOT MID -->
+  <div class="ad-slot ad-slot-mid" style="max-width:720px; margin: 0 auto 24px; padding: 0 16px;">
+    <!-- Google AdSense Rectangle -->
+    Advertisement
+  </div>
+
+  <!-- TIPS -->
+  <div class="tips">
+    <div class="tip">
+      <div class="tip-icon">🤖</div>
+      <h5>AI-Powered</h5>
+      <p>99% accurate transcription using latest AI models.</p>
+    </div>
+    <div class="tip">
+      <div class="tip-icon">🌍</div>
+      <h5>50+ Languages</h5>
+      <p>Translate to any major language instantly.</p>
+    </div>
+    <div class="tip">
+      <div class="tip-icon">📄</div>
+      <h5>SRT & VTT</h5>
+      <p>Download in standard subtitle formats.</p>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2025 VidXEdit.com &nbsp;|&nbsp; <a href="index.html">Home</a> <a href="#">Privacy</a></p>
+  </footer>
+
+  <script>
+    // Typing animation
+    const phrases = [
+      'Welcome to VidXEdit...',
+      'مرحباً بك في VidXEdit...',
+      'Bienvenue sur VidXEdit...',
+      'Bienvenido a VidXEdit...',
+    ];
+    let phraseIndex = 0, charIndex = 0, deleting = false;
+    const typingEl = document.getElementById('typingText');
+
+    function type() {
+      const current = phrases[phraseIndex];
+      if (!deleting) {
+        typingEl.textContent = current.substring(0, charIndex++);
+        if (charIndex > current.length) { deleting = true; setTimeout(type, 1800); return; }
+      } else {
+        typingEl.textContent = current.substring(0, charIndex--);
+        if (charIndex < 0) {
+          deleting = false;
+          phraseIndex = (phraseIndex + 1) % phrases.length;
+          setTimeout(type, 400); return;
+        }
+      }
+      setTimeout(type, deleting ? 40 : 70);
+    }
+    type();
+
+    // Toggle
+    function toggleOption(el) { el.classList.toggle('on'); }
+
+    // File handling
+    let selectedFile = null;
+
+    function handleFile(input) {
+      const file = input.files[0];
+      if (!file) return;
+      selectedFile = file;
+      document.getElementById('fileName').textContent = file.name;
+      document.getElementById('fileSize').textContent = (file.size / 1024 / 1024).toFixed(1) + ' MB';
+      document.getElementById('fileInfo').classList.add('show');
+      document.getElementById('uploadArea').style.opacity = '0.5';
+      document.getElementById('resultBox').classList.remove('show');
+      document.getElementById('progressBox').classList.remove('show');
+      // Update steps
+      document.getElementById('dot1').className = 'step-dot done';
+      document.getElementById('dot1').textContent = '✓';
+      document.getElementById('dot2').className = 'step-dot active';
+      document.getElementById('line1').className = 'step-line done';
+    }
+
+    function removeFile() {
+      selectedFile = null;
+      document.getElementById('fileInfo').classList.remove('show');
+      document.getElementById('uploadArea').style.opacity = '1';
+      document.getElementById('fileInput').value = '';
+      document.getElementById('resultBox').classList.remove('show');
+      document.getElementById('progressBox').classList.remove('show');
+      document.getElementById('dot1').className = 'step-dot active';
+      document.getElementById('dot1').textContent = '1';
+      document.getElementById('dot2').className = 'step-dot inactive';
+      document.getElementById('line1').className = 'step-line';
+    }
+
+    // Generate
+    async function generateSubtitles() {
+      if (!selectedFile) { alert('Please upload a video or audio file first.'); return; }
+
+      const btn = document.getElementById('generateBtn');
+      btn.disabled = true;
+      document.getElementById('resultBox').classList.remove('show');
+      document.getElementById('progressBox').classList.add('show');
+
+      const stages = ['stage1','stage2','stage3','stage4'];
+      const durations = [1200, 2000, 1500, 800];
+
+      for (let i = 0; i < stages.length; i++) {
+        document.getElementById(stages[i]).className = 'stage active';
+        await new Promise(r => setTimeout(r, durations[i]));
+        document.getElementById(stages[i]).className = 'stage done';
+        const el = document.getElementById(stages[i]);
+        el.querySelector('.stage-icon').style.display = 'block';
+        el.querySelector('.stage-icon').textContent = '✓';
+      }
+
+      setTimeout(() => {
+        document.getElementById('progressBox').classList.remove('show');
+        document.getElementById('resultBox').classList.add('show');
+        btn.disabled = false;
+        document.getElementById('dot2').className = 'step-dot done';
+        document.getElementById('dot2').textContent = '✓';
+        document.getElementById('dot3').className = 'step-dot active';
+        document.getElementById('line2').className = 'step-line done';
+      }, 400);
+    }
+
+    // Drag and drop
+    const uploadArea = document.getElementById('uploadArea');
+    uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+    uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+    uploadArea.addEventListener('drop', e => {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file) handleFile({ files: [file] });
+    });
+  </script>
+
+</body>
+</html>

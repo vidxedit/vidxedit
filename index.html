@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VidXEdit – Video Tools Online</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #1a6bff;
+      --blue-dark: #0047cc;
+      --blue-light: #e8f0ff;
+      --blue-mid: #c2d8ff;
+      --white: #ffffff;
+      --gray: #f4f6fb;
+      --text: #0d1a2e;
+      --muted: #6b7a99;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--white);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* NAV */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 60px;
+      position: sticky;
+      top: 0;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+      border-bottom: 1px solid var(--blue-mid);
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--blue);
+      letter-spacing: -1px;
+    }
+
+    .logo span { color: var(--text); }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 36px;
+    }
+
+    nav ul a {
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    nav ul a:hover { color: var(--blue); }
+
+    .nav-btn {
+      background: var(--blue);
+      color: white !important;
+      padding: 10px 22px;
+      border-radius: 50px;
+      transition: background 0.2s, transform 0.2s !important;
+    }
+
+    .nav-btn:hover { background: var(--blue-dark) !important; transform: translateY(-1px); }
+
+    /* HERO */
+    .hero {
+      min-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 80px 40px 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 50% at 50% 0%, #d6e8ff 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 80% 80%, #e8f0ff 0%, transparent 60%);
+      z-index: 0;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--blue-light);
+      color: var(--blue);
+      font-size: 0.82rem;
+      font-weight: 500;
+      padding: 6px 16px;
+      border-radius: 50px;
+      margin-bottom: 28px;
+      border: 1px solid var(--blue-mid);
+      position: relative;
+      z-index: 1;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .badge-dot {
+      width: 7px; height: 7px;
+      background: var(--blue);
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.3); }
+    }
+
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.8rem, 6vw, 5rem);
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -2px;
+      max-width: 780px;
+      position: relative;
+      z-index: 1;
+      animation: fadeUp 0.7s 0.1s ease both;
+    }
+
+    .hero h1 .highlight {
+      color: var(--blue);
+      position: relative;
+      display: inline-block;
+    }
+
+    .hero h1 .highlight::after {
+      content: '';
+      position: absolute;
+      left: 0; bottom: 4px;
+      width: 100%; height: 6px;
+      background: var(--blue-mid);
+      border-radius: 4px;
+      z-index: -1;
+    }
+
+    .hero p {
+      font-size: 1.15rem;
+      color: var(--muted);
+      max-width: 520px;
+      line-height: 1.7;
+      margin-top: 20px;
+      position: relative;
+      z-index: 1;
+      animation: fadeUp 0.7s 0.2s ease both;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      margin-top: 36px;
+      position: relative;
+      z-index: 1;
+      animation: fadeUp 0.7s 0.3s ease both;
+    }
+
+    .btn-primary {
+      background: var(--blue);
+      color: white;
+      padding: 14px 32px;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(26,107,255,0.3);
+    }
+
+    .btn-primary:hover {
+      background: var(--blue-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(26,107,255,0.4);
+    }
+
+    .btn-secondary {
+      background: var(--white);
+      color: var(--text);
+      padding: 14px 32px;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 500;
+      text-decoration: none;
+      border: 1.5px solid var(--blue-mid);
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--blue);
+      transform: translateY(-2px);
+    }
+
+    /* TOOLS SECTION */
+    .tools {
+      padding: 100px 60px;
+      background: var(--gray);
+    }
+
+    .section-label {
+      text-align: center;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--blue);
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      text-align: center;
+      letter-spacing: -1px;
+      margin-bottom: 60px;
+    }
+
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 28px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .tool-card {
+      background: var(--white);
+      border-radius: 24px;
+      padding: 40px 36px;
+      border: 1.5px solid transparent;
+      transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tool-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: var(--blue);
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+      transform-origin: left;
+    }
+
+    .tool-card:hover {
+      border-color: var(--blue-mid);
+      transform: translateY(-6px);
+      box-shadow: 0 20px 50px rgba(26,107,255,0.12);
+    }
+
+    .tool-card:hover::before { transform: scaleX(1); }
+
+    .tool-icon {
+      width: 60px; height: 60px;
+      background: var(--blue-light);
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      margin-bottom: 24px;
+      transition: background 0.25s, transform 0.25s;
+    }
+
+    .tool-card:hover .tool-icon {
+      background: var(--blue);
+      transform: scale(1.08);
+    }
+
+    .tool-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
+    }
+
+    .tool-card p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.65;
+    }
+
+    .tool-arrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 24px;
+      color: var(--blue);
+      font-size: 0.9rem;
+      font-weight: 500;
+      opacity: 0;
+      transform: translateX(-8px);
+      transition: opacity 0.25s, transform 0.25s;
+    }
+
+    .tool-card:hover .tool-arrow {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    /* HOW IT WORKS */
+    .how {
+      padding: 100px 60px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+      margin-top: 60px;
+    }
+
+    .step {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .step-num {
+      width: 52px; height: 52px;
+      background: var(--blue);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin: 0 auto 20px;
+    }
+
+    .step h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .step p {
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.65;
+    }
+
+    /* ADS */
+    .ad-slot {
+      width: 100%;
+      background: var(--gray);
+      border: 1.5px dashed var(--blue-mid);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 0.78rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .ad-slot-banner { height: 90px; margin: 0 60px; }
+    .ad-slot-mid { height: 120px; max-width: 1100px; margin: 0 auto 40px; }
+
+    /* FOOTER */
+    footer {
+      background: var(--text);
+      color: rgba(255,255,255,0.6);
+      text-align: center;
+      padding: 40px 60px;
+      font-size: 0.88rem;
+    }
+
+    footer .footer-logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: white;
+      margin-bottom: 12px;
+    }
+
+    footer a {
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      margin: 0 12px;
+      transition: color 0.2s;
+    }
+
+    footer a:hover { color: white; }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      nav { padding: 16px 24px; }
+      nav ul { display: none; }
+      .hero { padding: 60px 24px 40px; }
+      .tools { padding: 60px 24px; }
+      .how { padding: 60px 24px; }
+      .steps { grid-template-columns: 1fr; gap: 24px; }
+      .hero-actions { flex-direction: column; align-items: center; }
+      footer { padding: 32px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="logo">VidX<span>Edit</span></div>
+    <ul>
+      <li><a href="#tools">Tools</a></li>
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#tools" class="nav-btn">Get Started</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      Free Online Video Tools
+    </div>
+    <h1>Edit your videos<br><span class="highlight">without limits</span></h1>
+    <p>Download, extract audio, and add AI subtitles to your videos — all in one place, completely free.</p>
+    <div class="hero-actions">
+      <a href="#tools" class="btn-primary">Explore Tools →</a>
+      <a href="#how" class="btn-secondary">How it works</a>
+    </div>
+  </section>
+
+  <!-- AD BANNER TOP -->
+  <div class="ad-slot ad-slot-banner" style="margin-top:24px;">
+    <!-- Google AdSense Banner 728x90 -->
+    Advertisement
+  </div>
+
+  <!-- TOOLS -->
+  <section class="tools" id="tools">
+    <p class="section-label">Our Tools</p>
+    <h2 class="section-title">Everything you need</h2>
+    <div class="tools-grid">
+
+      <a href="downloader.html" class="tool-card">
+        <div class="tool-icon">📥</div>
+        <h3>Video Downloader</h3>
+        <p>Download videos from YouTube, Instagram, TikTok, and more — fast and free.</p>
+        <div class="tool-arrow">Try it → </div>
+      </a>
+
+      <a href="extractor.html" class="tool-card">
+        <div class="tool-icon">🎵</div>
+        <h3>Audio Extractor</h3>
+        <p>Extract high-quality MP3 audio from any video file in seconds.</p>
+        <div class="tool-arrow">Try it → </div>
+      </a>
+
+      <a href="subtitles.html" class="tool-card">
+        <div class="tool-icon">🌍</div>
+        <h3>AI Subtitles</h3>
+        <p>Automatically generate and translate subtitles for your videos using AI.</p>
+        <div class="tool-arrow">Try it → </div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- AD SLOT MID -->
+  <div class="ad-slot ad-slot-mid" style="padding: 0 60px;">
+    <!-- Google AdSense Rectangle -->
+    Advertisement
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <section class="how" id="how">
+    <p class="section-label">Simple Process</p>
+    <h2 class="section-title" style="text-align:center;">How it works</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h4>Choose a tool</h4>
+        <p>Pick the tool you need from our collection — no sign-up required.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h4>Upload or paste link</h4>
+        <p>Upload your video file or paste a link from YouTube, TikTok, or Instagram.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h4>Download your result</h4>
+        <p>Get your processed file instantly — ready to use, share, or publish.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">VidXEdit</div>
+    <p style="margin-bottom:16px;">
+      <a href="#">Home</a>
+      <a href="#tools">Tools</a>
+      <a href="#">Privacy</a>
+      <a href="#">Contact</a>
+    </p>
+    <p>© 2025 VidXEdit.com — All rights reserved.</p>
+  </footer>
+
+</body>
+</html>
